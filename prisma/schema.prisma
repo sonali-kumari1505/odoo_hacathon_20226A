@@ -1,0 +1,105 @@
+
+datasource db {
+ provider  = "postgresql"
+ url       = env("DATABASE_URL")
+ directUrl = env("DIRECT_URL")
+}
+
+generator client {
+ provider = "prisma-client-js"
+}
+
+model Product {
+ id            Int                 @id @default(autoincrement())
+ name          String
+ sku           String
+ unit          String
+ reorderLevel  Int                 @default(10)
+ movements     Movement[]
+ documentLines StockDocumentLine[]
+}
+
+model Supplier {
+ id        Int             @id @default(autoincrement())
+ name      String
+ contact   String?
+ documents StockDocument[]
+}
+
+model Movement {
+ id           Int            @id @default(autoincrement())
+ productId    Int
+ type         String
+ quantity     Int
+ location     String?
+ fromLocation String?
+ toLocation   String?
+ note         String?
+ documentId   Int?
+ createdAt    DateTime       @default(now())
+
+ product  Product       @relation(fields:[productId], references:[id])
+ document StockDocument? @relation(fields:[documentId], references:[id], onDelete: SetNull)
+
+ @@index([productId, createdAt])
+ @@index([type, createdAt])
+ @@index([documentId])
+}
+
+model StockDocument {
+ id           Int                 @id @default(autoincrement())
+ type         String
+ status       String              @default("PENDING")
+ supplierId   Int?
+ fromLocation String?
+ toLocation   String?
+ note         String?
+ createdAt    DateTime            @default(now())
+ validatedAt  DateTime?
+ supplier     Supplier?           @relation(fields:[supplierId], references:[id], onDelete: SetNull)
+ lines        StockDocumentLine[]
+ movements    Movement[]
+
+ @@index([type, status])
+ @@index([createdAt])
+ @@index([supplierId])
+}
+
+model StockDocumentLine {
+ id            Int           @id @default(autoincrement())
+ documentId    Int
+ productId     Int
+ quantity      Int
+ physicalCount Int?
+ stockBefore   Int?
+ delta         Int?
+ createdAt     DateTime      @default(now())
+
+ document StockDocument @relation(fields:[documentId], references:[id], onDelete: Cascade)
+ product  Product       @relation(fields:[productId], references:[id])
+
+ @@index([documentId])
+ @@index([productId])
+}
+
+model User {
+ id           Int       @id @default(autoincrement())
+ name         String?
+ email        String    @unique
+ passwordHash String
+ createdAt    DateTime  @default(now())
+ sessions     Session[]
+}
+
+model Session {
+ id        Int      @id @default(autoincrement())
+ tokenHash String   @unique
+ userId    Int
+ expiresAt DateTime
+ createdAt DateTime @default(now())
+
+ user User @relation(fields:[userId], references:[id], onDelete: Cascade)
+
+ @@index([userId])
+ @@index([expiresAt])
+}
