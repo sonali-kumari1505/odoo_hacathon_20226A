@@ -13,8 +13,8 @@ Setup:
 6. npm run dev
 
 Open http://localhost:3000
-deploylink:
-Video link:https://drive.google.com/drive/u/0/folders/1rlAHJi80puwYn6PfcJTgnDsQrtd_lPEu
+
+
 Note:we have made earlier repo but dueo to unexpected circumstances we have to change the link of repo
 https://github.com/sonali-kumari1505/odoo_hacathon_2026 here mentor is also added but we have to change this repo.
 Warehouse inventory app built with Next.js (App Router), Prisma, and PostgreSQL (Neon).
